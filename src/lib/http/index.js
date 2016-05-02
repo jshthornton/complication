@@ -1,19 +1,29 @@
-import generator from '../generator';
+import ExtendableError from '../ExtendableError';
 
-export const HttpError = generator('HttpError');
-export const NotFoundHttpError = generator('NotFoundHttpError', HttpError);
-export const AccessDeniedHttpError = generator('AccessDeniedHttpError', HttpError);
-export const BadRequestHttpError = generator('BadRequestHttpError', HttpError);
-export const ConflictHttpError = generator('ConflictHttpError', HttpError);
-export const FatalErrorError = generator('FatalErrorError', HttpError);
-export const FlattenError = generator('FlattenError', HttpError);
-export const GoneHttpError = generator('GoneHttpError', HttpError);
-export const LengthRequiredHttpError = generator('LengthRequiredHttpError', HttpError);
-export const MethodNotAllowedHttpError = generator('MethodNotAllowedHttpError', HttpError);
-export const NotAcceptableHttpError = generator('NotAcceptableHttpError', HttpError);
-export const PreconditionFailedHttpError = generator('PreconditionFailedHttpError', HttpError);
-export const PreconditionRequiredHttpError = generator('PreconditionRequiredHttpError', HttpError);
-export const ServiceUnavailableHttpError = generator('ServiceUnavailableHttpError', HttpError);
-export const TooManyRequestsHttpError = generator('TooManyRequestsHttpError', HttpError);
-export const UnauthorizedHttpError = generator('UnauthorizedHttpError', HttpError);
-export const UnsupportedMediaTypeHttpError = generator('UnsupportedMediaTypeHttpError', HttpError);
+export class HttpError extends ExtendableError {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+}
+
+function makeHttpSubError(code) {
+  return class extends HttpError {
+    constructor(message) {
+      super(code, message);
+    }
+  }
+}
+
+// 4XX
+export const BadRequestHttpError = makeHttpSubError(400);
+export const UnauthorizedHttpError = makeHttpSubError(401);
+export const NotFoundHttpError = makeHttpSubError(404);
+export const MethodNotAllowedHttpError = makeHttpSubError(405);
+export const ConflictHttpError = makeHttpSubError(409);
+export const GoneHttpError = makeHttpSubError(410);
+
+// 5xx
+export const InternalServerError = makeHttpSubError(500);
+export const BadGatewayHttpError = makeHttpSubError(502);
+export const ServiceUnavailableHttpError = makeHttpSubError(503);
